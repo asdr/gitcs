@@ -6,7 +6,14 @@
 #| purpose of code is running system executables from common lisp.
 #| Note: works well only with sbcl
 ---------------------------------------------------- |#|#|#|#|#|#|#
+(in-package :common-lisp-user)
 
+(defpackage :gitcs.cmd
+  (:use #:cl #:gitcs)
+  (:export #:with-command-run
+	   #:run-git-command))
+
+(in-package :gitcs.cmd)
 
 (defparameter *current-directory* (sb-posix:getcwd))
 
@@ -54,16 +61,16 @@
 	 (sb-ext:process-exit-code ,gprocess)))))
 
 (defun run-git-command (command &optional parameters (directory *current-directory*))
-  (let ((output-string (make-array '(0) :element-type 'base-char :fill-pointer 0 :adjustable t)))
+  (let ((output-string (make-array '(0) :element-type 'base-char :fill-pointer 0 :adjustable t))) 
     (with-command-run (stream
 		       :program "/usr/bin/git" ;;hardcoded olmasin
 		       :args (cons command (or (and (null parameters)
 						    parameters)
 					       (and (listp parameters)
-						     parameters)))
+						    parameters)))
 		       :working-directory directory)
-      (with-output-to-string (s output-string)
-	(loop for line = (read-line stream nil nil)
+    (with-output-to-string (s output-string)
+      (loop for line = (read-line stream nil nil)
 	      while line
-	      do (format s "~A~%" line))))
+	    do (format s "~A~%" line))))
     output-string))
