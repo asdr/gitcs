@@ -8,6 +8,9 @@
 ---------------------------------------------------- |#|#|#|#|#|#|#
 
 
+(defparameter *current-directory* (sb-posix:getcwd))
+
+
 ;; Author: Kevin M. Rosenberg
 ;; taken from: http://files.b9.com/lboot/utils.lisp
 (defun cwd (&optional dir)
@@ -49,3 +52,18 @@
 	 (cwd ,gcwd)
 	 (sb-ext:process-close ,gprocess)
 	 (sb-ext:process-exit-code ,gprocess)))))
+
+(defun run-git-command (command &optional parameters (directory *current-directory*))
+  (let ((output-string (make-array '(0) :element-type 'base-char :fill-pointer 0 :adjustable t)))
+    (with-command-run (stream
+		       :program "/usr/bin/git" ;;hardcoded olmasin
+		       :args (cons command (or (and (null parameters)
+						    parameters)
+					       (and (listp parameters)
+						     parameters)))
+		       :working-directory directory)
+      (with-output-to-string (s output-string)
+	(loop for line = (read-line stream nil nil)
+	      while line
+	      do (format s "~A~%" line))))
+    output-string))
