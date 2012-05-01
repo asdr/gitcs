@@ -2,6 +2,8 @@
 
 (defpackage #:gitcs
   (:use #:cl)
-  (:export #:*current-directory*))
+  (:export #:*current-directory*
+	   #:*git-binary-location*
+	   #:select-items))
 
 
